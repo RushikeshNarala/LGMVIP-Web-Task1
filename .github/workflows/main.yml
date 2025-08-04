@@ -24,7 +24,7 @@ jobs:
       run: docker build -t docker image . todolist
    
     - name: Push Docker Image
-      run: docker push rushikanna/todolist:latest
+      run: docker push rushikanna/r-app:tagname
       
     - name: Log out from Docker Hub  
       run: docker logout
