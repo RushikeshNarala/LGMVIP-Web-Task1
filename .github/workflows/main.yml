@@ -2,6 +2,9 @@ name: Send MTAR file via SendGrid
 
 on:
   workflow_dispatch:  # Manual trigger from Actions tab
+  push:
+    branches:
+      - main
 
 jobs:
   send-mtar:
