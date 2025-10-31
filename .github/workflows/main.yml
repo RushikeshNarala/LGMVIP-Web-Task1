@@ -26,7 +26,7 @@ jobs:
       - name: Send .tar file via SendGrid API
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          TO_EMAIL: rushikeshnarala02@gmail.com
+          TO_EMAIL: solletibhavyapravallika@gmail.com
           FROM_EMAIL: noreply@si6.io
         run: |
           # Encode TAR file as base64 (single-line to avoid JSON issues)
