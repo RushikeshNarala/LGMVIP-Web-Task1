@@ -1,64 +1,63 @@
-name: Send MTAR file via SendGrid
+name: Send TAR file via SendGrid
 
 on:
-  workflow_dispatch:    # Allows manual trigger from Actions tab
+  workflow_dispatch:  # manual trigger (you can replace with push/schedule)
   push:
     branches:
-      - main            # Optional: run automatically when you push to main
-
+      - main
+      
 jobs:
-  send-mtar:
+  send-tar:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 1: (Optional) Build or locate your .mtar file
-      # Replace this with your real mtar generation or build command
-      - name: Create sample .mtar file
+      - name: Generate .tar file
         run: |
-          mkdir -p dist
-          echo "Sample content inside mtar file" > dist/sample.txt
-          tar -cvf app.mtar dist/
-      # Step 2: Send .mtar file via SendGrid
-      - name: Send .mtar file using SendGrid API
+          mkdir output
+          echo "Sample file content" > output/sample.txt
+          tar -cvf report.tar output/
+
+      - name: Send .tar file via SendGrid API
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           TO_EMAIL: rushikesh@si6.io
           FROM_EMAIL: noreply@si6.io
         run: |
-          # Encode the MTAR file as base64 (SendGrid requires this format)
-          base64 app.mtar > encoded.txt
+          # Encode TAR file as base64
+          base64 report.tar > encoded.txt
           ENCODED_CONTENT=$(cat encoded.txt)
-          # Create the JSON payload for SendGrid
+
+          # Create JSON payload
           cat <<EOF > payload.json
           {
             "personalizations": [
               {
                 "to": [{ "email": "${TO_EMAIL}" }],
-                "subject": "Automated MTAR File from GitHub Actions"
+                "subject": "Automated TAR File from GitHub Actions"
               }
             ],
             "from": { "email": "${FROM_EMAIL}" },
             "content": [
               {
                 "type": "text/plain",
-                "value": "Hello,\n\nPlease find attached the generated MTAR file.\n\nRegards,\nGitHub Actions"
+                "value": "Hello,\n\nPlease find attached the generated TAR file.\n\nRegards,\nGitHub Actions"
               }
             ],
             "attachments": [
               {
                 "content": "${ENCODED_CONTENT}",
-                "type": "application/octet-stream",
-                "filename": "app.mtar"
+                "type": "application/x-tar",
+                "filename": "report.tar"
               }
             ]
           }
           EOF
-          # Send email using SendGrid REST API
+
+          # Send email using SendGrid API
           curl -X POST "https://api.sendgrid.com/v3/mail/send" \
             -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @payload.json
-
