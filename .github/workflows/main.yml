@@ -14,6 +14,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      - name: Install Cloud Foundry CLI
+        run: |
+          curl -sL "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=8.8.3&source=github-rel" | tar -zx
+          sudo mv cf8 /usr/local/bin
+          cf8 --version
+
+      - name: Install mbt
+        run: |
+          npm install -g mbt
+
+      - name: Install MTA Plugin
+        run: |
+          cf8 install-plugin -f https://github.com/cloudfoundry-incubator/multiapps-cli-plugin/releases/latest/download/multiapps-plugin.linux64
+
+      - name: Build MTA Archive
+        run: mbt build -t gen --mtar mta.tar
+
+      - name: Log into SAP Cloud Foundry
+        run: |
+          cf8 login -a ${{ secrets.CF_API_ENDPOINT_TEST }} \
+          -o ${{ secrets.CF_ORGANIZATION_TEST }} \
+          -s ${{ secrets.CF_SPACE_TEST }} \
+          -u ${{ secrets.CF_USERNAME }} \
+          -p ${{ secrets.CF_PASSWORD }} 
+
+      - name: Deploy using MTA
+        run: cf8 deploy gen/mta.tar -f
       # Step 1: (Optional) Build or locate your .mtar file
       # Replace this with your real mtar generation or build command
       - name: Create sample .mtar file
