@@ -1,33 +1,36 @@
 name: Send TAR file via SendGrid
 
 on:
-  workflow_dispatch:  # manual trigger (you can replace with push/schedule)
+  workflow_dispatch:  # manual trigger
   push:
     branches:
       - main
-      
+
 jobs:
   send-tar:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Generate .tar file
       - name: Generate .tar file
         run: |
-          mkdir output
+          mkdir -p output
           echo "Sample file content" > output/sample.txt
           tar -cvf report.tar output/
 
+      # Step 3: Send .tar file via SendGrid API
       - name: Send .tar file via SendGrid API
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           TO_EMAIL: rushikesh@si6.io
           FROM_EMAIL: noreply@si6.io
         run: |
-          # Encode TAR file as base64
-          base64 report.tar > encoded.txt
+          # Encode TAR file as base64 (single-line to avoid JSON issues)
+          base64 -w 0 report.tar > encoded.txt
           ENCODED_CONTENT=$(cat encoded.txt)
 
           # Create JSON payload
@@ -56,8 +59,13 @@ jobs:
           }
           EOF
 
-          # Send email using SendGrid API
-          curl -X POST "https://api.sendgrid.com/v3/mail/send" \
+          # Send email using SendGrid API and show response
+          echo "Sending email via SendGrid..."
+          RESPONSE=$(curl -s -o response.txt -w "%{http_code}" -X POST "https://api.sendgrid.com/v3/mail/send" \
             -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
             -H "Content-Type: application/json" \
-            -d @payload.json
+            -d @payload.json)
+
+          echo "HTTP Response Code: $RESPONSE"
+          echo "SendGrid Response:"
+          cat response.txt
