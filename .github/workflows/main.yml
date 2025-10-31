@@ -27,7 +27,7 @@ jobs:
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           TO_EMAIL: rushikeshnaral02@gmail.com
-          FROM_EMAIL: naralarushikesh143@gmail.com
+          FROM_EMAIL: noreply@si6.io
         run: |
           # Encode the MTAR file as base64 (SendGrid requires this format)
           base64 app.mtar > encoded.txt
