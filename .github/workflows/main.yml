@@ -1,7 +1,7 @@
 name: Send MTAR file via SendGrid
 
 on:
-  workflow_dispatch:  # You can replace this with push, schedule, etc.
+  workflow_dispatch:  main # You can replace this with push, schedule, etc.
 
 jobs:
   send-mtar:
