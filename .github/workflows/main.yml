@@ -26,7 +26,7 @@ jobs:
       - name: Send .mtar file using SendGrid API
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          TO_EMAIL: solletibhavyapravallika@gmail.com
+          TO_EMAIL: rushikeshnaral02@gmail.com
           FROM_EMAIL: naralarushikesh143@gmail.com
         run: |
           # Encode the MTAR file as base64 (SendGrid requires this format)
